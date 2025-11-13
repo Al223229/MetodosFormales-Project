@@ -1,10 +1,16 @@
-import Header from './Componentes/Header.jsx';
-import './index.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./Loginsrc/Login";
+import Register from "./Loginsrc/Register";
 
-export default function App() {
+function App() {
   return (
-    <div>
-      <Header />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
+
+export default App;
