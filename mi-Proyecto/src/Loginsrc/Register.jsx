@@ -2,8 +2,9 @@ import React from 'react';
 import './login.css';
 import CreatinaIMG from '../assets/Creatina.png';
 import ScoopIMG from '../assets/Scoop.png';
+import { Link } from 'react-router-dom';
 
-const LoginPage = () => {
+const RegisterPage = () => {
   return (
     <div className="flex min-h-screen w-full font-sans">
       {/* --- SECCION IZQUIERDA (Formulario) --- */}
@@ -69,15 +70,11 @@ const LoginPage = () => {
             </div>
 
             {/* Boton Register */}
-            <button 
+            <Link to="/"
             type="button"
-                  className="font-bebas tracking-[3px] w-full rounded-md bg-[#3b4d82] py-3 font-medium text-white shadow-md transition-all duration-150
-                  hover:bg-transparent 
-                  hover:border-2
-                hover:text-black 
-                hover:border-[#3b4d82]">
+                  className="font-bebas tracking-[3px] w-full rounded-md bg-[#3b4d82] py-3 font-medium text-white shadow-md transition-all duration-150 hover:bg-transparent hover:border-2 hover:text-black  hover:border-[#3b4d82]">
                   Registrarse
-            </button>
+            </Link>
 
             {/* Registro */}
             <div className="text-center text-xs text-gray-600">
@@ -134,4 +131,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
