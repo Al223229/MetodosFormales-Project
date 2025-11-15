@@ -70,7 +70,7 @@ const RegisterPage = () => {
             </div>
 
             {/* Boton Register */}
-            <Link to="/"
+            <Link to="/SetupProfile"
             type="button"
                   className="font-bebas tracking-[3px] w-full rounded-md bg-[#3b4d82] py-3 font-medium text-white shadow-md transition-all duration-150 hover:bg-transparent hover:border-2 hover:text-black  hover:border-[#3b4d82]">
                   Registrarse
