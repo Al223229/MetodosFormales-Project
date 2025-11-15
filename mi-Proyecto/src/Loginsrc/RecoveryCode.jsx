@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import logo from '../assets/Befitwhite.png';
 
 const VerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -32,10 +33,14 @@ const VerificationPage = () => {
     <div className="min-h-screen flex flex-col font-sans relative bg-[#fcfbf2]">
 
       {/* Fondo verde superior */}
-      <div className="absolute top-0 left-0 w-full h-[45vh] bg-[#70AA77] z-0"></div>
+      <div className="bg-[#70AA77] pb-48 shadow-sm">
+        <header className="w-full px-6 py-4 flex items-center border-b border-[#A5C8A1]">
+          <img src={logo} alt="Logo Befit" className="h-12 object-contain" />
+        </header>
+      </div>
 
       {/* Contenido */}
-      <main className="flex-grow flex items-center justify-center z-10 px-4 mt-8">
+      <main className="flex-grow flex items-start justify-center px-4 -mt-40 pb-10">
         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-10 text-center">
 
           <h2
