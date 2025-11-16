@@ -62,7 +62,7 @@ const LoginPage = () => {
             </div>
 
             {/* Boton Login */}
-            <button 
+            <Link to="/Home"
             type="button"
                   className="font-bebas tracking-[3px] w-full rounded-md bg-[#3b4d82] py-3 font-medium text-white shadow-md transition-all duration-150
                   hover:bg-transparent 
@@ -70,7 +70,7 @@ const LoginPage = () => {
                 hover:text-black 
                 hover:border-[#3b4d82]">
                   Iniciar Sesión
-            </button>
+            </Link>
 
             {/* Registro */}
             <div className="text-center text-xs text-gray-600">
