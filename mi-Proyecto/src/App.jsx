@@ -6,6 +6,8 @@ import CartSidebar from "./Componentes/CartSidebar";
 import Tienda from "./Componentes/Tienda"; 
 import Home from "./Home";
 import ProductDetail from "./Products/detallesProductos";
+import CartPage from "./Products/CartPage";
+import CheckoutPage from "./Products/CheckoutPage";
 
 // Login Components
 import Login from "./Loginsrc/Login";
@@ -77,7 +79,7 @@ const MainLayout = () => {
         onUpdateQuantity={updateQuantity}
       />
 
-      <Outlet context={{ cartItems, addToCart, setIsCartOpen, allProducts: ALL_PRODUCTS }} />
+      <Outlet context={{ cartItems, addToCart, removeFromCart, updateQuantity, setIsCartOpen, allProducts: ALL_PRODUCTS }} />
 
       <Footer />
     </>
@@ -101,7 +103,8 @@ export default function App() {
           
           {/* --- CAMBIO AQUÍ: Aceptamos nombre y ID --- */}
           <Route path="/:productName/:id" element={<ProductDetail />}/>
-          
+          <Route path="/CartPage" element={<CartPage />} />
+          <Route path="/CheckoutPage" element={<CheckoutPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

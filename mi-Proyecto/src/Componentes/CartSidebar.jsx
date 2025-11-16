@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const CloseIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
@@ -111,9 +112,9 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity })
             <span className="text-gray-600 font-medium">Subtotal</span>
             <span className="text-2xl font-bold text-gray-900">${total.toLocaleString()}</span>
           </div>
-          <button className="w-full bg-[#334173] hover:bg-[#253055] text-white py-3 rounded-xl font-bold text-sm shadow-lg transition-all hover:shadow-xl active:scale-[0.98]">
+          <Link to="/CartPage" className="text-center block w-full bg-[#334173] hover:bg-[#253055] text-white py-3 rounded-xl font-bold text-sm shadow-lg transition-all hover:shadow-xl active:scale-[0.98]">
             Proceder al Pago
-          </button>
+          </Link>
         </div>
       </div>
     </>
