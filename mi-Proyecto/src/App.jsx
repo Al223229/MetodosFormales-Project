@@ -8,6 +8,7 @@ import Home from "./Home";
 import ProductDetail from "./Products/detallesProductos";
 import CartPage from "./Products/CartPage";
 import CheckoutPage from "./Products/CheckoutPage";
+import OrderHistoryPage from "./Users/OrderHistory";
 
 // Login Components
 import Login from "./Loginsrc/Login";
@@ -105,6 +106,7 @@ export default function App() {
           <Route path="/:productName/:id" element={<ProductDetail />}/>
           <Route path="/CartPage" element={<CartPage />} />
           <Route path="/CheckoutPage" element={<CheckoutPage />} />
+          <Route path="/OrderHistory" element={<OrderHistoryPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

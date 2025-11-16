@@ -123,7 +123,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* COLUMNA DERECHA: RESUMEN DEL PEDIDO */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 lg:self-start">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold">Resumen del Pedido</h2>

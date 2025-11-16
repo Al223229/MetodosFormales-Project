@@ -1,17 +1,23 @@
 import React from 'react';
-import './login.css';
+import { useNavigate, Link } from "react-router-dom";
 import CreatinaIMG from '../assets/Creatina.png';
 import ScoopIMG from '../assets/Scoop.png';
-import { Link } from 'react-router-dom';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    navigate('/Home'); //
+  };
   return (
+    <form onSubmit={handleLogin} className="flex flex-col space-y-2">
     <div className="flex min-h-screen w-full font-sans">
       {/* --- SECCION IZQUIERDA (Formulario) --- */}
       <div className="relative flex w-full flex-col justify-center bg-[#FFFCF2] p-8 md:w-1/2 lg:px-20">
         
         {/* Texto de fondo */}
-        <div className="w-[669px] h-0">
+        <div className="hidden md:block w-[669px] h-0">
           <span className="fixed top-[560px] -left-px text-[150px] font-bold text-gray-200 opacity-60 md:text-[180px] font-bebas tracking-[40.00px] leading-[normal]">
             B E F I T
           </span>
@@ -35,7 +41,6 @@ const LoginPage = () => {
           </div>
         </div>
 
-          <form className="flex flex-col space-y-2">
             {/* Input Email */}
             <div className="flex flex-col">
               <label className="font-oswald mb-1 text-s font-semibold text-gray-600">Correo</label>
@@ -56,21 +61,17 @@ const LoginPage = () => {
 
             {/* Olvidaste contraseña */}
             <div className="text-right">
-              <Link to="/RecoverySelect" className="text-xs font-medium text-gray-600 hover:text-black hover:underline">
+              <Link to= "/RecoverySelect" href="#" className="text-xs font-medium text-gray-600 hover:text-black hover:underline">
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
 
             {/* Boton Login */}
-            <Link to="/Home"
-            type="button"
-                  className="font-bebas tracking-[3px] w-full rounded-md bg-[#3b4d82] py-3 font-medium text-white shadow-md transition-all duration-150
-                  hover:bg-transparent 
-                  hover:border-2
-                hover:text-black 
-                hover:border-[#3b4d82]">
+            <button 
+            type="submit"
+                  className="font-bebas tracking-[3px] w-full rounded-md  bg-[#3b4d82] py-3 font-medium text-white text-center shadow-md transition-all duration-150 border border-transparent hover:bg-transparent hover:border-[#3b4d82] hover:text-black">
                   Iniciar Sesión
-            </Link>
+            </button>
 
             {/* Registro */}
             <div className="text-center text-xs text-gray-600">
@@ -103,7 +104,6 @@ const LoginPage = () => {
                 Continua con Facebook
               </button>
             </div>
-          </form>
         </div>
       </div>
 
@@ -124,6 +124,7 @@ const LoginPage = () => {
       </div>
       </div>
     </div>
+    </form>
   );
 };
 
