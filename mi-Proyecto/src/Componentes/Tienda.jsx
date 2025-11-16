@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams, useOutletContext } from 'react-router-dom';
+import { useSearchParams, useOutletContext, Link } from 'react-router-dom';
 
 // --- 1. ICONOS SVG ---
 const StarIcon = ({ filled }) => (
@@ -96,38 +96,61 @@ const Sidebar = ({ currentFilters, onFilterChange }) => {
 };
 
 // --- 3. PRODUCT CARD ---
-const ProductCard = ({ product, onAddToCart }) => (
-  <div className="flex flex-col rounded-3xl bg-white p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 h-[440px] w-full">
-    <div className={`relative flex justify-center items-center h-72 rounded-2xl mb-4 ${product.hasBg ? 'bg-[#EADBC8]' : 'bg-gray-50'}`}>
-       {product.tag && (
-        <div className="absolute top-0 left-0 bg-[#D99030] text-white text-[10px] font-bold px-2 py-3 rounded-tl-2xl rounded-br-lg leading-tight z-10">
-            {product.tag}<br/>INFO
-        </div>
-      )}
-      <img className="h-52 w-full object-contain mix-blend-multiply" src={product.imageSrc || `https://placehold.co/300x400/png?text=${product.title.split(' ')[0]}`} alt={product.title} />
-    </div>
-    <div className="flex flex-col flex-1">
-      <h3 className="text-sm font-bold text-gray-900 mb-1 truncate">{product.title}</h3>
-      <p className="text-[11px] text-gray-400 mb-2 truncate">{product.description}</p>
-      <div className="flex items-center mb-4">
-        <div className="flex space-x-0.5">
-          {[...Array(5)].map((_, i) => (<StarIcon key={i} filled={i < product.rating} />))}
-        </div>
-        <span className="text-[10px] text-gray-400 ml-1">({product.reviewCount})</span>
-      </div>
+const ProductCard = ({ product, onAddToCart }) => {
+  // --- CAMBIO: Generar URL amigable ---
+  // Reemplaza espacios con guiones para la URL (Ej: "Whey Gold" -> "Whey-Gold")
+  const productSlug = product.title.replace(/\s+/g, '-');
+
+  return (
+    <div className="flex flex-col rounded-3xl bg-white p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 h-[440px] w-full">
+      
+      {/* Envolvemos con el LINK usando el nombre y el ID */}
+      <Link to={`/${productSlug}/${product.id}`} className="contents">
+          
+          <div className={`relative flex justify-center items-center h-72 rounded-2xl mb-4 ${product.hasBg ? 'bg-[#EADBC8]' : 'bg-gray-50'}`}>
+            {product.tag && (
+              <div className="absolute top-0 left-0 bg-[#D99030] text-white text-[10px] font-bold px-2 py-3 rounded-tl-2xl rounded-br-lg leading-tight z-10">
+                  {product.tag}<br/>INFO
+              </div>
+            )}
+            <img className="h-52 w-full object-contain mix-blend-multiply" src={product.imageSrc || `https://placehold.co/300x400/png?text=${product.title.split(' ')[0]}`} alt={product.title} />
+          </div>
+          
+          <div className="flex flex-col flex-1">
+            <h3 className="text-sm font-bold text-gray-900 mb-1 truncate hover:text-[#334173] transition-colors">
+              {product.title}
+            </h3>
+            <p className="text-[11px] text-gray-400 mb-2 truncate">{product.description}</p>
+            <div className="flex items-center mb-4">
+              <div className="flex space-x-0.5">
+                {[...Array(5)].map((_, i) => (<StarIcon key={i} filled={i < product.rating} />))}
+              </div>
+              <span className="text-[10px] text-gray-400 ml-1">({product.reviewCount})</span>
+            </div>
+          </div>
+
+      </Link>
+
+      {/* Botón fuera del link */}
       <div className="mt-auto flex items-end justify-between">
-        <div>
-          <p className="text-2xl font-bold text-gray-900 leading-none">${product.price}</p>
-          <p className="text-[10px] text-gray-400 uppercase mt-1">MXN</p>
+          <div>
+            <p className="text-2xl font-bold text-gray-900 leading-none">${product.price}</p>
+            <p className="text-[10px] text-gray-400 uppercase mt-1">MXN</p>
+          </div>
+          <button 
+              onClick={(e) => {
+                  e.stopPropagation();
+                  onAddToCart(product);
+              }} 
+              className="bg-[#334173] hover:bg-[#253055] text-white text-xs font-semibold py-2 px-6 rounded-full shadow-md transition-colors active:scale-95"
+          >
+            Agregar
+          </button>
         </div>
-        {/* CORREGIDO: onClick={() => onAddToCart(product)} (estaba AddToCart en mayúscula) */}
-        <button onClick={() => onAddToCart(product)} className="bg-[#334173] hover:bg-[#253055] text-white text-xs font-semibold py-2 px-6 rounded-full shadow-md transition-colors active:scale-95">
-          Agregar
-        </button>
-      </div>
+
     </div>
-  </div>
-);
+  );
+};
 
 // --- 4. PAGINACIÓN ---
 const Pagination = ({ totalPages, currentPage, setCurrentPage }) => {
@@ -153,21 +176,7 @@ const MarketplaceView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 6;
 
-  // --- CONEXIÓN GLOBAL: RECUPERAMOS LA FUNCIÓN ADD DEL PADRE ---
-  // Ya NO creamos el estado aquí, lo pedimos prestado a App.js
-  const { addToCart } = useOutletContext();
-
-  // --- BASE DE DATOS (SIMULADA) ---
-  const allProducts = [
-    { id: 1, title: "Whey Gold Standard", category: "proteinas", goal: "muscle", activity: "gym", description: "Proteína aislada", price: 1200, rating: 5, reviewCount: 320, hasBg: false },
-    { id: 2, title: "Gatorade Polvo", category: "post-entreno", goal: "performance", activity: "team_sports", description: "Hidratación intensa", price: 200, rating: 4, reviewCount: 500, hasBg: true },
-    { id: 3, title: "Multivitamínico Pro", category: "vitaminas", goal: "health", activity: "swimming", description: "Salud integral", price: 400, rating: 5, reviewCount: 120, hasBg: false },
-    { id: 4, title: "Creatina Monohidratada", category: "creatinas", goal: "muscle", activity: "crossfit", description: "Fuerza explosiva", price: 600, rating: 5, reviewCount: 300, hasBg: false },
-    { id: 5, title: "Pre-Workout C4", category: "pre-entreno", goal: "energy", activity: "gym", description: "Energía total", price: 550, rating: 4, reviewCount: 200, hasBg: false },
-    { id: 6, title: "Isotónico Gel", category: "pre-entreno", goal: "performance", activity: "cycling", description: "Resistencia larga", price: 50, rating: 5, reviewCount: 80, hasBg: true },
-    { id: 7, title: "Quemador Hydroxy", category: "quemadores", goal: "weight_loss", activity: "running", description: "Termogénico", price: 700, rating: 3, reviewCount: 90, hasBg: false },
-    { id: 8, title: "BCAAs Recovery", category: "aminoacidos", goal: "recovery", activity: "gym", description: "Recuperación muscular", price: 500, rating: 4, reviewCount: 150, hasBg: false },
-  ];
+  const { addToCart, allProducts } = useOutletContext();
 
   // --- FILTROS ---
   const currentFilters = useMemo(() => ({
@@ -212,9 +221,6 @@ const MarketplaceView = () => {
 
   return (
     <div className="min-h-screen bg-[#FFFDF5] py-10 font-sans text-gray-800">
-      
-      {/* NOTA: Eliminamos el <CartSidebar> de aquí porque ya está en App.jsx */}
-
       <div className="container mx-auto px-4 xl:px-20 max-w-screen-2xl">
         
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 pb-4 border-b border-gray-200">
