@@ -1,4 +1,7 @@
+// --- MODIFICADO: Importar 'useEffect' ---
+import { useState, useEffect } from 'react';
 import { useOutletContext, Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Icono de flecha hacia atrás
 const BackArrowIcon = () => (
@@ -8,12 +11,68 @@ const BackArrowIcon = () => (
   </svg>
 );
 
+// --- Variantes de animación ---
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemFadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { type: 'spring', stiffness: 100 }
+  },
+};
+
+const slideInRight = {
+  hidden: { opacity: 0, x: 50 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.5, ease: 'easeOut', delay: 0.2 }
+  },
+};
+
+const modalOverlayVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+const modalContentVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } },
+  exit: { opacity: 0, scale: 0.8 },
+};
+
+
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  // Asumimos que el context del Outlet nos da cartItems y allProducts
-  const { cartItems, allProducts } = useOutletContext();
+  // --- Recibir 'clearCart' del context ---
+  const { cartItems, allProducts, clearCart } = useOutletContext();
+  
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // Datos de ejemplo para dirección y método de pago
+  // --- Redirigir si el carrito está vacío ---
+  useEffect(() => {
+    // Si el carrito está vacío Y el modal no se está mostrando,
+    // no deberías estar aquí. Redirige a la tienda.
+    if (cartItems.length === 0 && !showSuccessModal) {
+      navigate('/Productos');
+    }
+    // La dependencia de 'showSuccessModal' evita un bucle
+    // cuando vaciamos el carrito al pagar.
+  }, [cartItems, navigate, showSuccessModal]);
+
+
+  // Datos de ejemplo
   const defaultAddress = {
     name: "Nombre Apellido",
     street: "Calle Ejemplo 1234, Fraccionamiento tal",
@@ -28,114 +87,163 @@ export default function CheckoutPage() {
     expiry: "10/2029"
   };
 
-  // Lógica de cálculo de precios (la misma que en CartPage)
+  // Lógica de cálculo de precios
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const shipping = subtotal > 2000 ? 0 : 150; // Ejemplo: Envío gratis si > 2000
-  const discount = 0; // Lógica de cupón pendiente
+  const shipping = subtotal > 2000 ? 0 : 150; 
+  const discount = 0; 
   const total = subtotal + shipping - discount;
 
-  // Función para manejar la finalización de la orden
+
+  // --- handleCompleteOrder ahora llama a clearCart ---
   const handleCompleteOrder = () => {
-    alert("¡Orden completada! (Esta es solo una simulación)");
-    // Aquí iría la lógica real para procesar el pago y vaciar el carrito
-    // navigate('/order-confirmation'); // Redirigir a una página de confirmación
+    // 1. Muestra el modal
+    setShowSuccessModal(true);
+    
+    // 2. Llama a la función para vaciar el carrito (el estado en App.jsx)
+    clearCart(); 
+    
+    // Aquí iría la lógica real para procesar el pago y enviar a la BD
   };
 
+  const closeAndNavigate = () => {
+    // 1. Navega PRIMERO. Esto desmontará el componente.
+    navigate('/Home'); 
+    // 2. Actualiza el estado DESPUÉS.
+    setShowSuccessModal(false);
+  };
+
+  // --- Evita renderizar si el carrito está vacío (mientras redirige) ---
+  if (cartItems.length === 0 && !showSuccessModal) {
+    return (
+      <div className="bg-[#FDFBF7] min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Tu carrito está vacío. Redirigiendo...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-[#FDFBF7] min-h-screen py-10 px-4 font-sans text-[#1e1e1e]">
+    <div className="bg-[#FDFBF7] min-h-screen py-10 px-4 font-sans text-[#1e1e1e] overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* COLUMNA IZQUIERDA: DETALLES DEL CHECKOUT */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <motion.div 
+            className="lg:col-span-2 space-y-8"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={itemFadeInUp} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <div className="flex items-center gap-4 mb-6">
-                <button onClick={() => navigate(-1)} aria-label="Volver atrás" className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                <motion.button 
+                  onClick={() => navigate(-1)} 
+                  aria-label="Volver atrás" 
+                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                  whileTap={{ scale: 0.8 }}
+                  whileHover={{ scale: 1.1 }}
+                >
                   <BackArrowIcon />
-                </button>
+                </motion.button>
                 <h1 className="text-2xl font-extrabold">Checkout</h1>
               </div>
               <hr className="border-gray-100 mb-6" />
 
               {/* Sección: Dirección de envío */}
-              <h2 className="text-xl font-bold mb-4">Dirección de envío</h2>
-              <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 mb-6">
-                <p className="font-bold text-lg mb-2">Casa</p>
-                <p className="text-gray-700 text-sm">{defaultAddress.street}</p>
-                <p className="text-gray-700 text-sm">{defaultAddress.city}</p>
-                <p className="text-gray-700 text-sm">{defaultAddress.zip}</p>
-                <div className="flex justify-between items-center mt-3 text-sm">
-                  <p className="text-gray-700">{defaultAddress.name}</p>
-                  <p className="text-gray-700">{defaultAddress.phone}</p>
-                </div>
-              </div>
-              <Link to="/addresses" className="text-blue-600 font-semibold hover:underline flex items-center gap-1 mb-10">
-                Seleccionar otra dirección 
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </Link>
-
-              {/* Sección: Método de pago */}
-              <h2 className="text-xl font-bold mb-4">Método de pago</h2>
-              
-              {/* Tarjeta Principal */}
-              <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 mb-4">
-                <p className="font-bold text-lg mb-3">Tarjeta principal</p>
-                <div className="flex items-center gap-4">
-                  {/* Icono de Visa - Placeholder SVG */}
-                  <svg width="40" height="25" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100" height="60" rx="8" fill="#1A1F71"/>
-                    <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold" fontFamily="Arial">VISA</text>
-                  </svg>
-                  <div>
-                    <p className="font-semibold text-lg">**** **** **** {defaultCard.lastFour}</p>
-                    <p className="text-gray-500 text-sm">Vence {defaultCard.expiry}</p>
+              <motion.div variants={itemFadeInUp}>
+                <h2 className="text-xl font-bold mb-4">Dirección de envío</h2>
+                <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 mb-6">
+                  <p className="font-bold text-lg mb-2">Casa</p>
+                  <p className="text-gray-700 text-sm">{defaultAddress.street}</p>
+                  <p className="text-gray-700 text-sm">{defaultAddress.city}</p>
+                  <p className="text-gray-700 text-sm">{defaultAddress.zip}</p>
+                  <div className="flex justify-between items-center mt-3 text-sm">
+                    <p className="text-gray-700">{defaultAddress.name}</p>
+                    <p className="text-gray-700">{defaultAddress.phone}</p>
                   </div>
                 </div>
-              </div>
+                <motion.div whileHover={{ x: 2 }} className="inline-block">
+                  <Link to="/addresses" className="text-blue-600 font-semibold hover:underline flex items-center gap-1 mb-10">
+                    Seleccionar otra dirección 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </Link>
+                </motion.div>
+              </motion.div>
 
-              {/* Opción de PayPal */}
-              <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 mb-6">
-                <p className="font-bold text-lg mb-3">PayPal</p>
-                <div className="flex items-center gap-4">
-                  {/* Icono de PayPal - Placeholder SVG */}
-                  <svg width="40" height="25" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100" height="60" rx="8" fill="#003087"/>
-                    <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#009CDE" fontSize="20" fontWeight="bold" fontFamily="Arial">PayPal</text>
-                  </svg>
-                  <p className="font-semibold text-lg text-gray-700">Pagar con PayPal</p>
+              {/* Sección: Método de pago */}
+              <motion.div variants={itemFadeInUp}>
+                <h2 className="text-xl font-bold mb-4">Método de pago</h2>
+                
+                <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 mb-4">
+                  <p className="font-bold text-lg mb-3">Tarjeta principal</p>
+                  <div className="flex items-center gap-4">
+                    <svg width="40" height="25" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="100" height="60" rx="8" fill="#1A1F71"/>
+                      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold" fontFamily="Arial">VISA</text>
+                    </svg>
+                    <div>
+                      <p className="font-semibold text-lg">**** **** **** {defaultCard.lastFour}</p>
+                      <p className="text-gray-500 text-sm">Vence {defaultCard.expiry}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <Link to="/payment-methods" className="text-blue-600 font-semibold hover:underline flex items-center gap-1 mb-10">
-                Seleccionar otro método de pago
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </Link>
+                <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 mb-6">
+                  <p className="font-bold text-lg mb-3">PayPal</p>
+                  <div className="flex items-center gap-4">
+                    <svg width="40" height="25" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="100" height="60" rx="8" fill="#003087"/>
+                      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#009CDE" fontSize="20" fontWeight="bold" fontFamily="Arial">PayPal</text>
+                    </svg>
+                    <p className="font-semibold text-lg text-gray-700">Pagar con PayPal</p>
+                  </div>
+                </div>
+
+                <motion.div whileHover={{ x: 2 }} className="inline-block">
+                  <Link to="/payment-methods" className="text-blue-600 font-semibold hover:underline flex items-center gap-1 mb-10">
+                    Seleccionar otro método de pago
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </Link>
+                </motion.div>
+              </motion.div>
 
               {/* Botón Completar Orden */}
-              <button
+              <motion.button
+                variants={itemFadeInUp}
                 onClick={handleCompleteOrder}
                 className="w-full bg-[#2D3A96] text-white py-3 rounded-full font-bold hover:bg-[#1e2a7a] transition shadow-lg shadow-blue-900/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 Completar orden
-              </button>
-            </div>
-          </div>
+              </motion.button>
+            </motion.div>
+          </motion.div>
 
           {/* COLUMNA DERECHA: RESUMEN DEL PEDIDO */}
-          <div className="lg:col-span-1 lg:self-start">
+          <motion.div 
+            className="lg:col-span-1 lg:self-start"
+            variants={slideInRight}
+            initial="hidden"
+            animate="visible"
+          >
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold">Resumen del Pedido</h2>
-                <Link to="/carrito" className="text-blue-600 text-sm hover:underline">Editar</Link>
+                <motion.div whileHover={{ x: 2 }}>
+                  <Link to="/CartPage" className="text-blue-600 text-sm hover:underline">Editar</Link>
+                </motion.div>
               </div>
               
-              <div className="space-y-4 mb-6 border-b border-gray-100 pb-4">
+              <motion.div 
+                className="space-y-4 mb-6 border-b border-gray-100 pb-4"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+              >
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
-                    {/* Imagen Placeholder */}
+                  <motion.div key={item.id} className="flex items-center gap-3" variants={itemFadeInUp}>
                     <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center text-gray-300 text-xs">
-                      {/* Aquí iría: <img src={item.image} ... /> */}
                       IMG
                     </div>
                     <div className="flex-1">
@@ -143,9 +251,9 @@ export default function CheckoutPage() {
                       <p className="text-gray-500 text-xs">{item.quantity} x ${item.price}</p>
                     </div>
                     <p className="font-bold text-lg">${(item.price * item.quantity).toFixed(2)}</p>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
 
               <div className="space-y-3 text-sm mb-6">
                 <div className="flex justify-between text-gray-600">
@@ -167,10 +275,46 @@ export default function CheckoutPage() {
                 <span>${total.toFixed(2)}</span>
               </div>
             </div>
-          </div>
-
+          </motion.div>
         </div>
       </div>
+
+      {/* --- Modal de éxito --- */}
+      <AnimatePresence>
+        {showSuccessModal && (
+          <motion.div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            variants={modalOverlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-50" onClick={closeAndNavigate}></div>
+            
+            {/* Contenido del Modal */}
+            <motion.div 
+              className="relative z-10 bg-white rounded-2xl shadow-xl p-8 text-center max-w-sm w-full"
+              variants={modalContentVariants}
+            >
+              {/* Icono de éxito (SVG) */}
+              <svg className="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <h2 className="text-2xl font-bold mb-2">¡Orden Completada!</h2>
+              <p className="text-gray-600 mb-6">Tu pedido ha sido procesado exitosamente. (Esto es una simulación).</p>
+              <motion.button
+                onClick={closeAndNavigate}
+                className="w-full bg-[#5CA982] text-white py-2 px-4 rounded-full font-bold hover:bg-[#4a8c6b] transition"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Genial, volver al inicio
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

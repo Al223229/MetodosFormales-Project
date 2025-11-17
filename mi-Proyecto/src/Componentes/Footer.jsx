@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import logo from '../assets/Befitwhite.png';
 const Footer = () => {
@@ -22,14 +23,31 @@ const Footer = () => {
                 </div>
 
                 {/* LINKS */}
-                <div>
-                    <h3 className="text-lg font-semibold mb-3 text-black">Links</h3>
-                    <ul className="font-bold space-y-2 text-sm">
-                        <li className="hover:underline cursor-pointer">Productos</li>
-                        <li className="hover:underline cursor-pointer">Suscripción</li>
-                        <li className="hover:underline cursor-pointer">Sobre nosotros</li>
-                    </ul>
-                </div>
+<div>
+    <h3 className="text-lg font-semibold mb-3 text-black">Links</h3>
+    <ul className="font-bold space-y-2 text-sm">
+        <li>
+            {/* Añades el 'to' a la ruta que definiste en App.jsx 
+              y mueves las clases del <li> al <Link>
+            */}
+            <Link to="/Productos" className="hover:underline cursor-pointer">
+                Productos
+            </Link>
+        </li>
+        <li>
+            {/* Asegúrate de tener una ruta para '/Suscripcion' en App.jsx */}
+            <Link to="/Suscripcion" className="hover:underline cursor-pointer">
+                Suscripción
+            </Link>
+        </li>
+        <li>
+            {/* Esta ruta ya la tienes en tu App.jsx */}
+            <Link to="/AboutUs" className="hover:underline cursor-pointer">
+                Sobre nosotros
+            </Link>
+        </li>
+    </ul>
+</div>
 
                 {/* REDES SOCIALES */}
                 <div>
