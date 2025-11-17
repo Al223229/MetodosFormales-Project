@@ -87,7 +87,7 @@ const AboutUs = () => {
           </div>
         </motion.div>
 
-        {/* --- Seccion de Mision --- */}
+        {/* --- Seccio                                                                                                                                                                                                                                                                                                                           n de Mision --- */}
         <motion.div 
           className="text-center mt-24"
           variants={itemVariants}
